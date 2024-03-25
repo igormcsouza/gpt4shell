@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "gpt4shell"
+version = "0.1.0"
+description = "A chat for terminal with preatty response"
+authors = ["Igor Souza <igormcsouza@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+rich = "13.7.1"
+langchain = "^0.1.13"
+langchain-openai = "^0.1.1"
+
+[tool.poetry.scripts]
+gpt = "gpt4shell:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
