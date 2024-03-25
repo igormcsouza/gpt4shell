@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Get the version from pyproject.toml
+VERSION=$(awk -F' = ' '/^version/ { gsub(/"/, "", $2); print $2 }' pyproject.toml)
+
+# Build the Docker image
+docker build -t igormcsouza/gptforshell:$VERSION .
