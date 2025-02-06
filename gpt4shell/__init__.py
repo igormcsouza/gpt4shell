@@ -23,6 +23,3 @@ def main():
 
     rich.print(answer)
 
-
-if __name__ == "__main__":
-    raise SystemExit(main())
