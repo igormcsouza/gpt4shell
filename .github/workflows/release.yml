@@ -111,7 +111,7 @@ jobs:
               
               // Decode content and update version
               const content = Buffer.from(fileResponse.data.content, 'base64').toString('utf-8');
-              const versionRegex = /^version = ".*"$/m;
+              const versionRegex = /^version\s*=\s*["'].*["']$/m;
               const newContent = content.replace(versionRegex, `version = "${{ steps.version.outputs.version }}"`);
               
               // Commit the updated file to the new branch
