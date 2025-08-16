@@ -45,29 +45,38 @@ jobs:
             echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get package version from pyproject.toml
+      - name: Extract version from tag and update pyproject.toml
         id: version
         run: |
-          version=$(poetry version --short)
-          echo "version=$version" >> $GITHUB_OUTPUT
-
-      - name: Validate version consistency
-        run: |
           tag_version="${{ steps.tag.outputs.tag }}"
-          pyproject_version="${{ steps.version.outputs.version }}"
-          
           # Remove 'v' prefix from tag if present
-          tag_version_clean=${tag_version#v}
+          version_clean=${tag_version#v}
           
-          if [ "$tag_version_clean" != "$pyproject_version" ]; then
-            echo "❌ Version mismatch!"
-            echo "Git tag version: $tag_version_clean"
-            echo "pyproject.toml version: $pyproject_version"
-            echo "Please ensure the git tag matches the version in pyproject.toml"
+          echo "🏷️  Release tag: $tag_version"
+          echo "📝 Setting version to: $version_clean"
+          
+          # Update version in pyproject.toml
+          poetry version "$version_clean"
+          
+          # Verify the version was set correctly
+          actual_version=$(poetry version --short)
+          if [ "$actual_version" != "$version_clean" ]; then
+            echo "❌ Failed to set version correctly!"
+            echo "Expected: $version_clean"
+            echo "Actual: $actual_version"
             exit 1
           fi
           
-          echo "✅ Version validation passed: $pyproject_version"
+          echo "✅ Version updated successfully: $actual_version"
+          echo "version=$actual_version" >> $GITHUB_OUTPUT
+
+      - name: Commit version update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pyproject.toml
+          git commit -m "Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}"
+          git push
 
       - name: Get commit SHA
         id: sha

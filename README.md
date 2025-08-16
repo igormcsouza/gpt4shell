@@ -20,10 +20,10 @@ And gpt will answer your question.
 
 This project uses a release-driven workflow for Docker image versioning:
 
-1. **Update Version**: Update the version in `pyproject.toml`
-2. **Create Release**: Create a GitHub Release with a tag that matches the version (e.g., `v1.2.3`)
-3. **Automatic Build**: The CI pipeline automatically:
-   - Validates that the git tag matches the `pyproject.toml` version
+1. **Create Release**: Create a GitHub Release with the desired version tag (e.g., `v1.2.3`)
+2. **Automatic Build**: The CI pipeline automatically:
+   - Updates the version in `pyproject.toml` to match the release tag
+   - Commits the version change back to the repository
    - Builds the Docker image for multiple architectures (amd64, arm64)
    - Pushes with multiple tags:
      - `igormcsouza/gpt4shell:1.2.3` (semantic version)
