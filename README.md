@@ -1,55 +1,15 @@
 # GPT for Shell
 
-[![Build and Publish Docker Image on Release](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml)
+[![Publish on Docker Hub](https://github.com/igormcsouza/gpt4shell/actions/workflows/publish.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/publish.yml)
 
-A chat for terminal with pretty response
+A chat for terminal with preatty response
 
 ## How to use?
 
 Set the `OPENAI_API_KEY` environment variable (go to the OPENAI to fetch that key). Then run the following command:
 
 ```bash
-docker run -e OPENAI_API_KEY -it igormcsouza/gpt4shell:latest "<Your question here>"
+docker run -e OPENAI_API_KEY -it igormcsouza/gptforshell:0.1.0 "<Your question here>"
 ```
 
 And gpt will answer your question.
-
-## Development
-
-### Release Process
-
-This project uses a release-driven workflow for Docker image versioning:
-
-1. **Create Release**: Create a GitHub Release with the desired version tag (e.g., `v1.2.3`)
-2. **Automatic Build**: The CI pipeline automatically:
-   - Updates the version in `pyproject.toml` to match the release tag
-   - Commits the version change back to the repository
-   - Builds the Docker image for multiple architectures (amd64, arm64)
-   - Pushes with multiple tags:
-     - `igormcsouza/gpt4shell:1.2.3` (semantic version)
-     - `igormcsouza/gpt4shell:sha-abc1234` (commit SHA for traceability)
-     - `igormcsouza/gpt4shell:latest` (convenience tag)
-   - Creates a deployment entry on GitHub
-
-📖 **Detailed guide**: See [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) for complete instructions.
-
-### Available Docker Tags
-
-- **Version tags** (e.g., `:1.2.3`): Immutable releases tied to specific versions
-- **SHA tags** (e.g., `:sha-abc1234`): For debugging and traceability to exact commits  
-- **`:latest`**: Points to the most recent release (not recommended for production)
-
-### Local Development
-
-To build locally:
-
-```bash
-# Install dependencies
-poetry install
-
-# Run the application
-poetry run gpt "Your question here"
-
-# Build Docker image locally
-./build
-```
