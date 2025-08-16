@@ -91,7 +91,7 @@ chmod +x build
 
 ### Running Tests
 
-Currently, this project focuses on simplicity and doesn't include a test suite. Contributions to add testing are welcome!
+Testing contributions are welcome to improve project reliability.
 
 ### Code Style
 
