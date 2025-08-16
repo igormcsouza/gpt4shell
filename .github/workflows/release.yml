@@ -77,9 +77,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/rest");
-            
-            
             // Create a new branch for the version update
             const branchName = `release/sync-version-${{ steps.tag.outputs.tag }}`;
             const baseBranch = 'main';
