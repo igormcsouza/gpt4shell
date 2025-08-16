@@ -1,0 +1,142 @@
+name: Build and Publish Docker Image on Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build'
+        required: true
+        type: string
+
+env:
+  DOCKER_IMAGE: igormcsouza/gpt4shell
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.0.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Get release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract version from tag and update pyproject.toml
+        id: version
+        run: |
+          tag_version="${{ steps.tag.outputs.tag }}"
+          # Remove 'v' prefix from tag if present
+          version_clean=${tag_version#v}
+          
+          echo "🏷️  Release tag: $tag_version"
+          echo "📝 Setting version to: $version_clean"
+          
+          # Update version in pyproject.toml
+          poetry version "$version_clean"
+          
+          # Verify the version was set correctly
+          actual_version=$(poetry version --short)
+          if [ "$actual_version" != "$version_clean" ]; then
+            echo "❌ Failed to set version correctly!"
+            echo "Expected: $version_clean"
+            echo "Actual: $actual_version"
+            exit 1
+          fi
+          
+          echo "✅ Version updated successfully: $actual_version"
+          echo "version=$actual_version" >> $GITHUB_OUTPUT
+
+      - name: Commit version update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pyproject.toml
+          git commit -m "Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}"
+          git push
+
+      - name: Get commit SHA
+        id: sha
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}
+            ${{ env.DOCKER_IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.title=GPT4Shell
+            org.opencontainers.image.description=A terminal-based chat application with rich text formatting
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+
+      - name: Create deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.tag.outputs.tag }}',
+              environment: 'production',
+              description: 'Docker image ${{ steps.version.outputs.version }}',
+              auto_merge: false,
+              required_contexts: []
+            });
+            
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              description: 'Docker image built and pushed successfully',
+              environment_url: 'https://hub.docker.com/r/${{ env.DOCKER_IMAGE }}'
+            });
+
+      - name: Summary
+        run: |
+          echo "🚀 Docker image published successfully!"
+          echo "📦 Tags created:"
+          echo "  - ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}"
+          echo "  - ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}"
+          echo "  - ${{ env.DOCKER_IMAGE }}:latest"
+          echo "🔗 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_IMAGE }}"
