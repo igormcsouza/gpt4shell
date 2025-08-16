@@ -229,7 +229,7 @@ jobs:
             echo ""
             echo "⚠️  Version synchronization needed!"
             echo "📝 A pull request has been created to sync the version in pyproject.toml"
-            echo "🔗 PR URL: ${{ steps.version.outputs.pr_url || 'Check repository for PR' }}"
+            echo "🔗 PR URL: Check repository for PR"
             echo ""
             echo "Please review and merge the PR to keep versions synchronized."
           else
