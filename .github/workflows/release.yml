@@ -1,8 +1,8 @@
 name: Build and Publish Docker Image on Release
 
 permissions:
-  contents: write
-  pull-requests: write
+  deployments: write
+  contents: read
 
 on:
   release:
