@@ -11,6 +11,9 @@ from pathlib import Path
 from typing import Dict, Any
 
 
+# Supported providers
+SUPPORTED_PROVIDERS = ["openai"]
+
 # Default configuration values
 DEFAULT_CONFIG = {
     "model": "gpt-3.5-turbo",

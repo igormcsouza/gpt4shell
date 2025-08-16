@@ -5,12 +5,16 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
 import rich
-from gpt4shell.settings import get_config
+from gpt4shell.settings import get_config, create_example_config, SUPPORTED_PROVIDERS
 
 
 def create_model(config):
     """Create a language model based on the configuration."""
     provider = config.get("provider", "openai").lower()
+    
+    if provider not in SUPPORTED_PROVIDERS:
+        supported_list = ", ".join(SUPPORTED_PROVIDERS)
+        raise ValueError(f"Unsupported provider: {provider}. Currently supported providers: {supported_list}")
     
     if provider == "openai":
         model_kwargs = {
@@ -25,8 +29,6 @@ def create_model(config):
             model_kwargs["openai_api_base"] = config["api_base"]
             
         return ChatOpenAI(**model_kwargs)
-    else:
-        raise ValueError(f"Unsupported provider: {provider}. Currently only 'openai' is supported.")
 
 
 def main():
@@ -38,7 +40,6 @@ def main():
 
     # Handle config example creation
     if args.config_example:
-        from gpt4shell.settings import create_example_config
         create_example_config()
         return 0
 
