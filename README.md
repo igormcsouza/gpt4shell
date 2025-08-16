@@ -31,6 +31,8 @@ This project uses a release-driven workflow for Docker image versioning:
      - `igormcsouza/gpt4shell:latest` (convenience tag)
    - Creates a deployment entry on GitHub
 
+📖 **Detailed guide**: See [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) for complete instructions.
+
 ### Available Docker Tags
 
 - **Version tags** (e.g., `:1.2.3`): Immutable releases tied to specific versions
