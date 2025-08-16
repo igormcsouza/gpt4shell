@@ -68,12 +68,8 @@ poetry install
 # Set your OpenAI API key
 export OPENAI_API_KEY="your-api-key-here"
 
-# Run using Poetry (recommended)
+# Run using Poetry
 poetry run gpt "Explain quantum computing"
-
-# Or activate the virtual environment first
-poetry shell
-gpt "Explain quantum computing"
 ```
 
 ## 💡 Usage Examples
