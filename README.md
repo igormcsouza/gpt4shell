@@ -30,7 +30,7 @@ The easiest way to use GPT4Shell is with Docker:
 export OPENAI_API_KEY="your-api-key-here"
 
 # Run with Docker
-docker run -e OPENAI_API_KEY -it igormcsouza/gptforshell:0.1.0.1 "What is the meaning of life?"
+docker run -e OPENAI_API_KEY -it igormcsouza/gptforshell:latest "What is the meaning of life?"
 ```
 
 ### Option 2: Local Installation with Poetry
@@ -55,23 +55,6 @@ export OPENAI_API_KEY="your-api-key-here"
 poetry run gpt "How do I write a Python function?"
 ```
 
-### Option 3: Development Setup
-
-```bash
-# Clone and enter the project
-git clone https://github.com/igormcsouza/gpt4shell.git
-cd gpt4shell
-
-# Install in development mode
-poetry install
-
-# Set your OpenAI API key
-export OPENAI_API_KEY="your-api-key-here"
-
-# Run using Poetry
-poetry run gpt "Explain quantum computing"
-```
-
 ## 💡 Usage Examples
 
 ```bash
@@ -92,20 +75,6 @@ poetry run gpt "What are the benefits of using containers?"
 
 ```bash
 poetry run gpt --help
-```
-
-## 🏗️ Project Structure
-
-```
-gpt4shell/
-├── gpt4shell/           # Main package
-│   ├── __init__.py      # CLI entry point and main logic
-│   └── __main__.py      # Module execution entry
-├── Dockerfile           # Container configuration
-├── pyproject.toml       # Project metadata and dependencies
-├── poetry.lock          # Locked dependencies
-├── build               # Docker build script
-└── README.md           # This file
 ```
 
 ## 🛠️ Development
@@ -153,21 +122,8 @@ Contributions are welcome! Here's how you can help:
 5. **Push** to the branch (`git push origin feature/amazing-feature`)
 6. **Open** a Pull Request
 
-### Ideas for Contributions
-
-- Add conversation history
-- Support for different GPT models
-- Configuration file support
-- Add comprehensive testing
-- Improve error handling
-- Add more output formatting options
+For specific ideas and feature requests, please check the [GitHub Issues](https://github.com/igormcsouza/gpt4shell/issues).
 
 ## 📝 License
 
 This project is open source. Please check the repository for license details.
-
-## 🙏 Acknowledgments
-
-- [OpenAI](https://openai.com/) for providing the GPT API
-- [LangChain](https://langchain.com/) for the AI framework
-- [Rich](https://rich.readthedocs.io/) for beautiful terminal formatting
