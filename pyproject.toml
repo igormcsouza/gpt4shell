@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gpt4shell"
-version = "0.1.0.1"
+version = "0.0.0"
 description = "A terminal-based chat application with rich text formatting"
 authors = ["Igor Souza <igormcsouza@gmail.com>"]
 readme = "README.md"
