@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Get the version from pyproject.toml
-VERSION=$(awk -F' = ' '/^version/ { gsub(/"/, "", $2); print $2 }' pyproject.toml)
-
-# Build the Docker image
-docker build -t igormcsouza/gpt4shell:$VERSION .
+# Build the Docker image with latest tag
+# For versioned builds, use the release workflow instead
+docker build -t igormcsouza/gpt4shell:latest .

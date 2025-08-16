@@ -40,130 +40,22 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Get release tag
+      - name: Get release tag and version
         id: tag
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            tag="${{ github.event.release.tag_name }}"
           else
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            tag="${{ github.event.inputs.tag }}"
           fi
-
-      - name: Check version synchronization
-        id: version
-        run: |
-          tag_version="${{ steps.tag.outputs.tag }}"
-          # Remove 'v' prefix from tag if present
-          version_clean=${tag_version#v}
           
-          echo "🏷️  Release tag: $tag_version"
-          echo "📝 Expected version: $version_clean"
+          # Remove 'v' prefix from tag if present to get clean version
+          version_clean=${tag#v}
           
-          # Get current version from pyproject.toml
-          current_version=$(poetry version --short)
-          echo "📋 Current pyproject.toml version: $current_version"
-          
-          if [ "$current_version" != "$version_clean" ]; then
-            echo "⚠️  Version mismatch detected!"
-            echo "Expected: $version_clean"
-            echo "Current: $current_version"
-            echo "needs_update=true" >> $GITHUB_OUTPUT
-            echo "version=$version_clean" >> $GITHUB_OUTPUT
-            echo "current_version=$current_version" >> $GITHUB_OUTPUT
-          else
-            echo "✅ Versions are synchronized"
-            echo "needs_update=false" >> $GITHUB_OUTPUT
-            echo "version=$current_version" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create PR for version synchronization
-        if: steps.version.outputs.needs_update == 'true'
-        uses: actions/github-script@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        with:
-          script: |
-            // Create a new branch for the version update
-            const branchName = `release/sync-version-${{ steps.tag.outputs.tag }}`;
-            const baseBranch = 'main';
-            
-            try {
-              // Get the latest commit SHA from main branch
-              const mainRef = await github.rest.git.getRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `heads/${baseBranch}`
-              });
-              
-              // Create new branch
-              await github.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/heads/${branchName}`,
-                sha: mainRef.data.object.sha
-              });
-              
-              console.log(`✅ Created branch: ${branchName}`);
-              
-              // Get current pyproject.toml content
-              const fileResponse = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: 'pyproject.toml',
-                ref: baseBranch
-              });
-              
-              // Decode content and update version
-              const content = Buffer.from(fileResponse.data.content, 'base64').toString('utf-8');
-              const versionRegex = /^version\s*=\s*["'].*["']$/m;
-              const newContent = content.replace(versionRegex, `version = "${{ steps.version.outputs.version }}"`);
-              
-              // Commit the updated file to the new branch
-              await github.rest.repos.createOrUpdateFileContents({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: 'pyproject.toml',
-                message: `Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}`,
-                content: Buffer.from(newContent).toString('base64'),
-                sha: fileResponse.data.sha,
-                branch: branchName
-              });
-              
-              console.log(`✅ Updated pyproject.toml in branch: ${branchName}`);
-              
-              // Create pull request
-              const pr = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `Sync version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}`,
-                head: branchName,
-                base: baseBranch,
-                body: `## Version Synchronization
-              
-              This PR updates the version in \`pyproject.toml\` to match the release tag ${{ steps.tag.outputs.tag }}.
-              
-              **Changes:**
-              - Update version from ${{ steps.version.outputs.current_version }} to ${{ steps.version.outputs.version }}
-              
-              **Reason:**
-              The release workflow detected a version mismatch between the git tag and pyproject.toml.
-              This PR ensures version synchronization across the repository.
-              
-              Generated automatically by the release workflow.`
-              });
-              
-              console.log(`✅ Created PR #${pr.data.number}: ${pr.data.html_url}`);
-              core.setOutput('pr_number', pr.data.number);
-              core.setOutput('pr_url', pr.data.html_url);
-              
-            } catch (error) {
-              if (error.message.includes('Reference already exists')) {
-                console.log(`Branch ${branchName} already exists, skipping branch creation`);
-              } else {
-                console.error('Error creating PR:', error);
-                throw error;
-              }
-            }
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=$version_clean" >> $GITHUB_OUTPUT
+          echo "🏷️  Release tag: $tag"
+          echo "📝 Version for Docker: $version_clean"
 
       - name: Get commit SHA
         id: sha
@@ -186,13 +78,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}
             ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}
             ${{ env.DOCKER_IMAGE }}:latest
           labels: |
             org.opencontainers.image.title=GPT4Shell
             org.opencontainers.image.description=A terminal-based chat application with rich text formatting
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.version=${{ steps.tag.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
@@ -205,7 +97,7 @@ jobs:
               repo: context.repo.repo,
               ref: '${{ steps.tag.outputs.tag }}',
               environment: 'production',
-              description: 'Docker image ${{ steps.version.outputs.version }}',
+              description: 'Docker image ${{ steps.tag.outputs.version }}',
               auto_merge: false,
               required_contexts: []
             });
@@ -223,19 +115,7 @@ jobs:
         run: |
           echo "🚀 Docker image published successfully!"
           echo "📦 Tags created:"
-          echo "  - ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}"
+          echo "  - ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}"
           echo "  - ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}"
           echo "  - ${{ env.DOCKER_IMAGE }}:latest"
           echo "🔗 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_IMAGE }}"
-          
-          if [ "${{ steps.version.outputs.needs_update }}" = "true" ]; then
-            echo ""
-            echo "⚠️  Version synchronization needed!"
-            echo "📝 A pull request has been created to sync the version in pyproject.toml"
-            echo "🔗 PR URL: Check repository for PR"
-            echo ""
-            echo "Please review and merge the PR to keep versions synchronized."
-          else
-            echo ""
-            echo "✅ Version synchronization: OK"
-          fi
