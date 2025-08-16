@@ -70,13 +70,25 @@ jobs:
           echo "✅ Version updated successfully: $actual_version"
           echo "version=$actual_version" >> $GITHUB_OUTPUT
 
+      - name: Checkout main branch
+        run: |
+          git checkout main
+          git pull origin main
+
       - name: Commit version update
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add pyproject.toml
-          git commit -m "Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}"
-          git push
+          # Check if there are any changes to commit
+          if git diff --staged --quiet pyproject.toml; then
+            git add pyproject.toml
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m "Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}"
+            git push origin main
+          else
+            echo "No changes to commit - version might already be up to date"
+          fi
 
       - name: Get commit SHA
         id: sha
