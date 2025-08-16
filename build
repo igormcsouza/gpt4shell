@@ -4,4 +4,4 @@
 VERSION=$(awk -F' = ' '/^version/ { gsub(/"/, "", $2); print $2 }' pyproject.toml)
 
 # Build the Docker image
-docker build -t igormcsouza/gptforshell:$VERSION .
+docker build -t igormcsouza/gpt4shell:$VERSION .

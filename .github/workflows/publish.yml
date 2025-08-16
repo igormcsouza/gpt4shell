@@ -1,9 +1,13 @@
-name: Publish on Docker Hub
+name: "[DEPRECATED] Publish on Docker Hub"
 
+# This workflow is deprecated in favor of the release-triggered workflow
+# It will be removed once the new release process is established
 on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/publish.yml'  # Only trigger if this file is modified
 
 jobs:
   build:
