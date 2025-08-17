@@ -16,6 +16,8 @@ This repository uses a **release-driven workflow** for Docker image versioning, 
 Once the release is published, the workflow automatically:
 
 - ✅ Extracts version from release tag (removes `v` prefix)
+- ✅ Updates `pyproject.toml` with the release version
+- ✅ Commits the version update back to the main branch  
 - ✅ Builds Docker image for multiple architectures  
 - ✅ Pushes three image tags:
   - `igormcsouza/gpt4shell:0.2.0` (semantic version)
@@ -33,18 +35,31 @@ You can also trigger the workflow manually:
 
 ## Version Management
 
-The workflow uses **git tags exclusively** for versioning:
-- Release tag `v0.2.0` → Docker images tagged as `0.2.0`
-- Release tag `v1.5.2` → Docker images tagged as `1.5.2`
-- `pyproject.toml` contains a placeholder version (`0.0.0`) and is not used for release versioning
+The workflow uses **git tags as the primary source** for versioning, with automatic synchronization to `pyproject.toml`:
+- Release tag `v0.2.0` → Docker images tagged as `0.2.0` + `pyproject.toml` updated to `0.2.0`
+- Release tag `v1.5.2` → Docker images tagged as `1.5.2` + `pyproject.toml` updated to `1.5.2`
+- The workflow automatically updates `pyproject.toml` and commits the change back to the main branch
 
 Example process:
 ```
 1. Create release with tag v0.2.0
 2. Workflow extracts "0.2.0" from tag
-3. Builds and pushes Docker images with version tags
-✅ Release complete - no version synchronization needed
+3. Updates pyproject.toml version from "0.0.0" to "0.2.0"
+4. Commits version update to main branch
+5. Builds and pushes Docker images with version tags
+✅ Release complete - version automatically synchronized
 ```
+
+## Branch Protection Compatibility
+
+This workflow is designed to work with **branch protection rules** on the main branch:
+
+- ✅ **Automated commits**: Uses GitHub Actions bot credentials to commit version updates
+- ✅ **Bypass protection**: GitHub Actions can push to protected branches when using `contents: write` permission
+- ✅ **No manual PRs needed**: Eliminates the need to manually create pull requests for version bumps
+- ✅ **Secure and robust**: Automated process reduces human error and ensures consistency
+
+The workflow solves the common issue where maintainers need to manually update `pyproject.toml` versions but cannot push directly to protected main branches or create pull requests themselves.
 
 ## Docker Usage
 
@@ -65,8 +80,9 @@ docker pull igormcsouza/gpt4shell:sha-abc1234
 
 - 🔒 **Immutable releases** - no overwriting existing tags
 - 🔍 **Full traceability** - commit SHA tags for debugging  
-- ⚡ **Simplified versioning** - git tags are the single source of truth
+- ⚡ **Simplified versioning** - git tags are the primary source of truth
+- 🔄 **Automatic synchronization** - pyproject.toml version automatically updated
+- 🤖 **Branch protection compatible** - works with protected main branch
 - 🚀 **Multi-architecture** - supports both x86 and ARM
 - 📊 **Deployment tracking** - visible in GitHub repository
 - 🎯 **Intentional releases** - only on explicit releases, not pushes
-- 🔄 **No version synchronization** - eliminates pyproject.toml version management complexity
