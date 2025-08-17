@@ -91,6 +91,19 @@ chmod +x build
 
 ### Running Tests
 
+The project includes a comprehensive test suite to ensure reliability:
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run tests with verbose output
+poetry run pytest -v
+
+# Run specific test file
+poetry run pytest tests/test_main.py
+```
+
 Testing contributions are welcome to improve project reliability.
 
 ### Code Style
