@@ -69,7 +69,7 @@ jobs:
           echo "📝 Updating pyproject.toml version to ${{ steps.tag.outputs.version }}"
           
           # Update version in pyproject.toml using sed
-          sed -i 's/^version = ".*"/version = "${{ steps.tag.outputs.version }}"/' pyproject.toml
+          sed -i "s/^version = \".*\"/version = \"${{ steps.tag.outputs.version }}\"/" pyproject.toml
           
           # Verify the change
           echo "✅ Updated version in pyproject.toml:"
