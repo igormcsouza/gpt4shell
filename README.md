@@ -1,6 +1,6 @@
 # GPT4Shell
 
-[![Build and Publish Docker Image on Release](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml)
+[![Semantic Release](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
 A terminal-based chat application that provides a beautiful, rich-formatted interface to interact with OpenAI's GPT models directly from your command line.
@@ -89,6 +89,17 @@ chmod +x build
 ./build
 ```
 
+### Release Process
+
+This project uses [Semantic Release](docs/SEMANTIC_RELEASE.md) for automated version management:
+
+- 🔄 **Automatic versioning** based on commit messages
+- 🏷️ **Git tags and GitHub releases** created automatically  
+- 📦 **Docker images** built and published on new releases
+- 📝 **Changelog** generated automatically
+
+See the [Semantic Release Guide](docs/SEMANTIC_RELEASE.md) for commit message conventions and release workflow details.
+
 ### Running Tests
 
 Testing contributions are welcome to improve project reliability.
@@ -117,8 +128,8 @@ Contributions are welcome! Here's how you can help:
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Make** your changes
-4. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+3. **Make** your changes following [conventional commits](docs/SEMANTIC_RELEASE.md#commit-message-convention)
+4. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
 5. **Push** to the branch (`git push origin feature/amazing-feature`)
 6. **Open** a Pull Request
 
