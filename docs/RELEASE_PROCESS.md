@@ -17,7 +17,8 @@ Once the release is published, the workflow automatically:
 
 - ✅ Extracts version from release tag (removes `v` prefix)
 - ✅ Updates `pyproject.toml` with the release version
-- ✅ Commits the version update back to the main branch  
+- ✅ Creates pull request with the version update to comply with branch protection
+- ✅ Attempts to auto-merge the pull request (may require manual merge if restrictions apply)
 - ✅ Builds Docker image for multiple architectures  
 - ✅ Pushes three image tags:
   - `igormcsouza/gpt4shell:0.2.0` (semantic version)
@@ -44,9 +45,11 @@ Example process:
 ```
 1. Create release with tag v0.2.0
 2. Workflow extracts "0.2.0" from tag
-3. Updates pyproject.toml version from "0.0.0" to "0.2.0"
-4. Commits version update to main branch
-5. Builds and pushes Docker images with version tags
+3. Creates new branch with version update
+4. Updates pyproject.toml version from "0.0.0" to "0.2.0"
+5. Creates pull request with the version change
+6. Attempts to auto-merge the pull request
+7. Builds and pushes Docker images with version tags
 ✅ Release complete - version automatically synchronized
 ```
 
@@ -54,12 +57,13 @@ Example process:
 
 This workflow is designed to work with **branch protection rules** on the main branch:
 
-- ✅ **Automated commits**: Uses GitHub Actions bot credentials to commit version updates
-- ✅ **Bypass protection**: GitHub Actions can push to protected branches when using `contents: write` permission
-- ✅ **No manual PRs needed**: Eliminates the need to manually create pull requests for version bumps
-- ✅ **Secure and robust**: Automated process reduces human error and ensures consistency
+- ✅ **Pull Request workflow**: Creates pull requests for version updates to comply with branch protection
+- ✅ **Automated commits**: Uses GitHub Actions bot credentials to commit version updates to feature branch
+- ✅ **Auto-merge attempt**: Tries to automatically merge the version update PR when possible
+- ✅ **Manual fallback**: If auto-merge fails, provides clear PR link for manual review and merge
+- ✅ **Secure and robust**: Automated process reduces human error while respecting repository security rules
 
-The workflow solves the common issue where maintainers need to manually update `pyproject.toml` versions but cannot push directly to protected main branches or create pull requests themselves.
+The workflow solves the issue where branch protection rules prevent direct pushes to main by creating proper pull requests for version updates, maintaining security while automating the version synchronization process.
 
 ## Docker Usage
 
