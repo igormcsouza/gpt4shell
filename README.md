@@ -1,6 +1,6 @@
 # GPT4Shell
 
-[![Publish on Docker Hub](https://github.com/igormcsouza/gpt4shell/actions/workflows/publish.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/publish.yml)
+[![Build and Publish Docker Image on Release](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
 A terminal-based chat application that provides a beautiful, rich-formatted interface to interact with OpenAI's GPT models directly from your command line.
@@ -135,11 +135,24 @@ poetry run gpt --help
 # Make the build script executable
 chmod +x build
 
-# Build the image (uses version from pyproject.toml)
+# Build the image (tags as latest for local development)
 ./build
 ```
 
 ### Running Tests
+
+The project includes a comprehensive test suite to ensure reliability:
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run tests with verbose output
+poetry run pytest -v
+
+# Run specific test file
+poetry run pytest tests/test_main.py
+```
 
 Testing contributions are welcome to improve project reliability.
 

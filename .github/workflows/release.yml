@@ -1,5 +1,9 @@
 name: Build and Publish Docker Image on Release
 
+permissions:
+  deployments: write
+  contents: read
+
 on:
   release:
     types: [published]
@@ -36,47 +40,22 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Get release tag
+      - name: Get release tag and version
         id: tag
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            tag="${{ github.event.release.tag_name }}"
           else
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Extract version from tag and update pyproject.toml
-        id: version
-        run: |
-          tag_version="${{ steps.tag.outputs.tag }}"
-          # Remove 'v' prefix from tag if present
-          version_clean=${tag_version#v}
-          
-          echo "🏷️  Release tag: $tag_version"
-          echo "📝 Setting version to: $version_clean"
-          
-          # Update version in pyproject.toml
-          poetry version "$version_clean"
-          
-          # Verify the version was set correctly
-          actual_version=$(poetry version --short)
-          if [ "$actual_version" != "$version_clean" ]; then
-            echo "❌ Failed to set version correctly!"
-            echo "Expected: $version_clean"
-            echo "Actual: $actual_version"
-            exit 1
+            tag="${{ github.event.inputs.tag }}"
           fi
           
-          echo "✅ Version updated successfully: $actual_version"
-          echo "version=$actual_version" >> $GITHUB_OUTPUT
-
-      - name: Commit version update
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add pyproject.toml
-          git commit -m "Bump version to ${{ steps.version.outputs.version }} for release ${{ steps.tag.outputs.tag }}"
-          git push
+          # Remove 'v' prefix from tag if present to get clean version
+          version_clean=${tag#v}
+          
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=$version_clean" >> $GITHUB_OUTPUT
+          echo "🏷️  Release tag: $tag"
+          echo "📝 Version for Docker: $version_clean"
 
       - name: Get commit SHA
         id: sha
@@ -99,13 +78,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}
             ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}
             ${{ env.DOCKER_IMAGE }}:latest
           labels: |
             org.opencontainers.image.title=GPT4Shell
             org.opencontainers.image.description=A terminal-based chat application with rich text formatting
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.version=${{ steps.tag.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
@@ -118,7 +97,7 @@ jobs:
               repo: context.repo.repo,
               ref: '${{ steps.tag.outputs.tag }}',
               environment: 'production',
-              description: 'Docker image ${{ steps.version.outputs.version }}',
+              description: 'Docker image ${{ steps.tag.outputs.version }}',
               auto_merge: false,
               required_contexts: []
             });
@@ -136,7 +115,7 @@ jobs:
         run: |
           echo "🚀 Docker image published successfully!"
           echo "📦 Tags created:"
-          echo "  - ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}"
+          echo "  - ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}"
           echo "  - ${{ env.DOCKER_IMAGE }}:sha-${{ steps.sha.outputs.sha }}"
           echo "  - ${{ env.DOCKER_IMAGE }}:latest"
           echo "🔗 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_IMAGE }}"

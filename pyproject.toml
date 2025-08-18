@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gpt4shell"
-version = "0.1.0.1"
+version = "0.0.0"
 description = "A terminal-based chat application with rich text formatting"
 authors = ["Igor Souza <igormcsouza@gmail.com>"]
 readme = "README.md"
@@ -12,9 +12,28 @@ langchain = "^0.1.13"
 langchain-core = "^0.1.33"
 langchain-openai = "^0.1.1"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-mock = "^3.12.0"
+
 [tool.poetry.scripts]
 gpt = "gpt4shell:main"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]
