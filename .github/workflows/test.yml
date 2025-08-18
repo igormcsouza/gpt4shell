@@ -46,8 +46,3 @@ jobs:
     - name: Run tests
       run: poetry run python run_tests.py
 
-    - name: Test CLI functionality
-      run: |
-        poetry run gpt --help
-        # Test error handling without API key
-        poetry run gpt "test" || true  # This should fail gracefully

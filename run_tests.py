@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Test runner for gpt4shell unit tests.
+Test runner for gpt4shell unit tests with coverage reporting.
 
 This script runs all unit tests for the gpt4shell project and provides
-a convenient way to execute tests during development.
+coverage reporting using pytest-cov.
 
 Usage:
-    python run_tests.py          # Run all tests
+    python run_tests.py          # Run all tests with coverage
     poetry run python run_tests.py  # Run with Poetry environment (recommended)
 """
 
 import os
 import sys
-import unittest
+import subprocess
 
 def check_dependencies():
     """Check if required dependencies are available."""
@@ -20,6 +20,8 @@ def check_dependencies():
         import langchain_core
         import langchain_openai
         import rich
+        import pytest
+        import pytest_cov
     except ImportError as e:
         print(f"❌ Missing dependency: {e}")
         print("📋 Please ensure all dependencies are installed.")
@@ -29,7 +31,7 @@ def check_dependencies():
     return True
 
 if __name__ == '__main__':
-    print("🧪 GPT4Shell Test Suite")
+    print("🧪 GPT4Shell Test Suite with Coverage")
     print("=" * 50)
     
     # Check if we're running in Poetry environment
@@ -43,25 +45,26 @@ if __name__ == '__main__':
     if not check_dependencies():
         sys.exit(1)
     
-    print("🔍 Discovering and running tests...")
+    print("🔍 Running tests with coverage...")
     print()
     
-    # Discover and run all tests
-    loader = unittest.TestLoader()
-    start_dir = 'tests'
-    suite = loader.discover(start_dir, pattern='test_*.py')
-    
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    
-    print()
-    print("=" * 50)
-    if result.wasSuccessful():
-        print("✅ All tests passed!")
-    else:
-        print("❌ Some tests failed!")
-        print(f"Failures: {len(result.failures)}")
-        print(f"Errors: {len(result.errors)}")
-    
-    # Exit with non-zero code if tests failed
-    sys.exit(0 if result.wasSuccessful() else 1)
+    # Run pytest with coverage
+    try:
+        result = subprocess.run([
+            sys.executable, '-m', 'pytest'
+        ], check=False)
+        
+        print()
+        print("=" * 50)
+        if result.returncode == 0:
+            print("✅ All tests passed!")
+            print("📊 Coverage report generated in htmlcov/ directory")
+        else:
+            print("❌ Some tests failed or coverage threshold not met!")
+        
+        # Exit with the same code as pytest
+        sys.exit(result.returncode)
+        
+    except Exception as e:
+        print(f"❌ Error running tests: {e}")
+        sys.exit(1)
