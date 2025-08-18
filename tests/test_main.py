@@ -45,7 +45,7 @@ class TestMain:
             main()
             
             # Verify interactions
-            mock_chat_openai.assert_called_once_with(model="gpt-3.5-turbo")
+            mock_chat_openai.assert_called_once_with(model="gpt-3.5-turbo", temperature=1.0)
             mock_prompt_template.from_template.assert_called_once_with(
                 "Answer the question from the user in simple terms:\n{question}"
             )
@@ -150,7 +150,7 @@ class TestMain:
             main()
             
             # Verify all components were created
-            mock_chat_openai.assert_called_once_with(model="gpt-3.5-turbo")
+            mock_chat_openai.assert_called_once_with(model="gpt-3.5-turbo", temperature=1.0)
             mock_prompt_template.from_template.assert_called_once()
             mock_output_parser.assert_called_once()
             

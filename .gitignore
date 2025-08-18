@@ -45,3 +45,11 @@ Thumbs.db
 
 # Temporary files
 /tmp/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.pytest_cache/
