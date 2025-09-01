@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Build the Docker image with latest tag
-# For versioned builds, use the release workflow instead
-docker build -t igormcsouza/gpt4shell:latest .

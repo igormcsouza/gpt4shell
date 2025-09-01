@@ -30,7 +30,7 @@ The easiest way to use GPT4Shell is with Docker:
 export OPENAI_API_KEY="your-api-key-here"
 
 # Run with Docker
-docker run -e OPENAI_API_KEY -it igormcsouza/gptforshell:latest "What is the meaning of life?"
+docker run -e OPENAI_API_KEY -it igormcsouza/gpt4shell:latest "What is the meaning of life?"
 ```
 
 ```
@@ -100,7 +100,7 @@ This will create a file at `~/.gpt4shell/config.json` with example settings.
 To use a custom configuration with Docker, mount your config file into the container:
 
 ```bash
-docker run -e OPENAI_API_KEY -v ~/.gpt4shell/config.json:/root/.gpt4shell/config.json -it igormcsouza/gptforshell:latest "Your question here"
+docker run -e OPENAI_API_KEY -v ~/.gpt4shell/config.json:/root/.gpt4shell/config.json -it igormcsouza/gpt4shell:latest "Your question here"
 ```
 
 If no configuration file is found, GPT4Shell will use sensible defaults.
@@ -128,16 +128,6 @@ poetry run gpt --help
 ```
 
 ## 🛠️ Development
-
-### Building the Docker Image
-
-```bash
-# Make the build script executable
-chmod +x build
-
-# Build the image (tags as latest for local development)
-./build
-```
 
 ### Running Tests
 
