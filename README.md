@@ -1,5 +1,7 @@
 # GPT4Shell
 
+> **⚠️ Archived.** This project is no longer maintained and has been superseded by [tether](https://github.com/igormcsouza/tether).
+
 [![Build and Publish Docker Image on Release](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml/badge.svg)](https://github.com/igormcsouza/gpt4shell/actions/workflows/release.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
